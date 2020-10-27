@@ -7,8 +7,6 @@
 var gameCanvas = new myCanvas('game_canvas');
 var lastTime = 0; //used for gameLoop clock
 var gameSpeed = 5;
-var playerWalkSpeed = 1;
-var playerRunSpeed = 2;
 var center = { x: gameCanvas.width / 2, y: gameCanvas.height / 2 };
 /*User global variables*/
 

@@ -15,8 +15,7 @@ var center = { x: gameCanvas.width / 2, y: gameCanvas.height / 2 };
 
 /* 2. Load images into a resources array */
 resources.load([
-    'images/soldier.png',
-    'images/field_map.gif',
+    
 ]);
 resources.onReady(init);
 
@@ -25,7 +24,7 @@ resources.onReady(init);
 var player = {
     speed: 2,
     pos: center,
-    sprite: new Sprite('images/soldier.png', [0, 0], [64, 95],
+    sprite: new Sprite('', [0, 0], [64, 95],
         /*These last are only required if the object has an animation*/
         15, [0, 1, 2, 1], 'horizontal', false, 0, [1, 1], 1)
 };
@@ -33,7 +32,7 @@ var player = {
 var background = {
     speed: 0,
     pos: { x: 0, y: 0 },
-    sprite: new Sprite('images/field_map.gif', [0, 0], [1024, 768])
+    sprite: new Sprite('', [0, 0], [1024, 768])
 };
 
 /* 3b. Multiples objects */
@@ -43,7 +42,7 @@ for (var i = 0; i < 4; i++) {
     enemies.push({
         pos: { x: center.x - 10, y: center.y - 10 },
         vel: { h: 2, v: 0 },
-        sprite: new Sprite("images/zombie.png", [0, 0], [5, 5],
+        sprite: new Sprite("", [0, 0], [5, 5],
             15, [0, 1], 'horizontal', false, 0, [1, 1], 1)
     });
 }

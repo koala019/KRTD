@@ -1,0 +1,55 @@
+<!--
+Version 2.0 - 2-Feb-2019
+This is a blank page to render a game using the jsLib and game.js files
+-->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Blank Game</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="main.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="container">
+			<h1>Blank Game</h1>
+			<section id="feedback">
+				<h1>Score: <span id="score"></span></h1>
+				<h1>Lives: <span id="lives"></span></h1>
+			</section>
+			<section id="controls">
+				<p id="center"></p>
+				<p id="pos"></p>
+				<p id="angle"></p>
+				<p id="other"></p>
+				<p id="bullet_angle"></p>
+			</section>
+
+      <div id="game">
+          <canvas id="game_canvas" width="1024" height="768">
+          </canvas>
+      </div>
+		</div>
+    <div id="sounds">
+			<!--
+            <audio id="highway" preload="auto">
+                <source src="audio/highway.mp3" type="audio/mp3">
+            </audio>
+            <audio id="whine" preload="auto">
+                <source src="audio/whine.wav" type="audio/wav">
+            </audio>
+            <audio id="bark" preload="auto">
+                <source src="audio/bark.wav" type="audio/wav">
+            </audio>
+            -->
+    </div>
+
+		<script src="jsLib/resources.js"></script>
+    <script src="jsLib/input.js"></script>
+    <script src="jsLib/sprite.js"></script>
+    <script src="jsLib/gameUtils.js"></script>
+
+    <script src="game.js">/*main game logic*/</script>
+	</body>
+</html>

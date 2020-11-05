@@ -12,7 +12,7 @@ This is a blank page to render a game using the jsLib and game.js files
 		<link href="main.css" rel="stylesheet">
 	</head>
 	<body>
-		<div id="container">
+		<!-- <div id="container">
 			<h1>Blank Game</h1>
 			<section id="feedback">
 				<h1>Score: <span id="score"></span></h1>
@@ -24,11 +24,10 @@ This is a blank page to render a game using the jsLib and game.js files
 				<p id="angle"></p>
 				<p id="other"></p>
 				<p id="bullet_angle"></p>
-			</section>
+			</section> -->
 
       <div id="game">
-          <canvas id="game_canvas" width="1024" height="768">
-          </canvas>
+          <canvas id="game_canvas" width="1280" height="720"></canvas>
       </div>
 		</div>
     <div id="sounds">
@@ -50,6 +49,16 @@ This is a blank page to render a game using the jsLib and game.js files
     <script src="jsLib/sprite.js"></script>
     <script src="jsLib/gameUtils.js"></script>
 
-    <script src="game.js">/*main game logic*/</script>
+	<script src="game.js">/*main game logic*/</script>
+	<script>
+		// CANVAS
+		// canvas()
+
+		function canvas() {
+			document.getElementById("game_canvas").width = window.innerWidth;
+			document.getElementById("game_canvas").height = window.innerHeight;
+		}
+
+	</script>
 	</body>
 </html>

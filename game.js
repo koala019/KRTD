@@ -7,22 +7,36 @@
 var gameCanvas = new myCanvas('game_canvas');
 var lastTime = 0; //used for gameLoop clock
 var gameSpeed = 5;
+var playerWalkSpeed = 1;
+var playerRunSpeed = 2;
 var center = { x: gameCanvas.width / 2, y: gameCanvas.height / 2 };
 /*User global variables*/
 
 
 /* 2. Load images into a resources array */
 resources.load([
-    
+    'images/soldier.png',
+    'images/field_map.gif',
+    'images/zombie.png',
+    'images/tower.png',
 ]);
 resources.onReady(init);
 
 /* 3. Game Objects */
 /* 3a. Singleton objects */
+
+var rioter = {
+    speed: 2,
+    pos: { x: center.x + 20, y: center.y + 200},
+    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
+};
+
+
+
 var player = {
     speed: 2,
     pos: center,
-    sprite: new Sprite('', [0, 0], [64, 95],
+    sprite: new Sprite('images/soldier.png', [0, 0], [64, 95],
         /*These last are only required if the object has an animation*/
         15, [0, 1, 2, 1], 'horizontal', false, 0, [1, 1], 1)
 };
@@ -30,26 +44,52 @@ var player = {
 var background = {
     speed: 0,
     pos: { x: 0, y: 0 },
-    sprite: new Sprite('', [0, 0], [1024, 768])
+    sprite: new Sprite('images/field_map.gif', [0, 0], [1024, 768])
 };
 
 /* 3b. Multiples objects */
 var bullets = []; //this is for tracking them AFTER they are fired
 var enemies = []; //this is for tracking them AFTER they are generated
+var towers = [];
 for (var i = 0; i < 4; i++) {
     enemies.push({
         pos: { x: center.x - 10, y: center.y - 10 },
         vel: { h: 2, v: 0 },
-        sprite: new Sprite("", [0, 0], [5, 5],
+        sprite: new Sprite("images/zombie.png", [0, 0], [5, 5],
             15, [0, 1], 'horizontal', false, 0, [1, 1], 1)
     });
 }
+
+towers.push({
+    speed: 0,
+    pos: { x: center.x + 250, y: center.y },
+    sprite: new Sprite(
+        "images/tower.png",
+        [0,0],
+        [512,512],
+        null,
+        null,
+        null,
+        null,
+        null,
+        [0.5,0.5]
+    )
+    }
+)
 
 /* 4. Settings for game logic
  *      Place vars here for global tracking or setup
  *      Eg: speeds, score etc
  */
 var gameOver = false;
+
+var mouseX;
+var mouseY;
+window.addEventListener('mousemove', function (e) {
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+    console.log("BRUH");
+  })
 
 //score and lives status
 var score = 0;
@@ -136,6 +176,13 @@ function update(dt) {
      * -This function is called once every "tick"
      */
 
+    for (i = 0; i < towers.length; i++) {
+        towers[i].dir = Math.atan2((rioter.pos.y - towers[i].pos.y), (rioter.pos.x - towers[i].pos.x));
+        towers[i].sprite.facing = towers[i].dir + Math.PI / 2;
+    };
+
+    rioter.pos = { x: mouseX, y: mouseY };
+
     /*
     Step 1 - handle keyboard inputs in the gameLoop
      - mouse moves and clicks handled asynchronously
@@ -203,7 +250,11 @@ function render() {
       Singletons: renderEntity(name);
       Multiples (ie arrays): renderEntities(array_name);
     */
-    renderEntity(player);
+    // renderEntity(player);
+    renderEntity(rioter);
+    for (i = 0; i < towers.length; i++) {
+        renderEntity(towers[i]);
+    }
     // renderEntities(explosions);
 
     /*

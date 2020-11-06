@@ -24,7 +24,11 @@ resources.onReady(init);
 
 /* 3. Game Objects */
 /* 3a. Singleton objects */
-
+var rioter = {
+    speed: 2,
+    pos: { x: center.x + 20, y: center.y + 200},
+    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
+};
 
 var player = {
     speed: 2,
@@ -42,12 +46,7 @@ var background = {
 
 /* 3b. Multiples objects */
 var bullets = []; //this is for tracking them AFTER they are fired
-var enemies = [var rioter = {
-    speed: 2,
-    pos: { x: center.x + 20, y: center.y + 200},
-    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
-};
-]; //this is for tracking them AFTER they are generated
+var enemies = []; //this is for tracking them AFTER they are generated
 var towers = [];
 for (var i = 0; i < 10; i++) {
     enemies.push({

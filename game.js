@@ -25,13 +25,6 @@ resources.onReady(init);
 /* 3. Game Objects */
 /* 3a. Singleton objects */
 
-var rioter = {
-    speed: 2,
-    pos: { x: center.x + 20, y: center.y + 200},
-    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
-};
-
-
 
 var player = {
     speed: 2,
@@ -49,14 +42,21 @@ var background = {
 
 /* 3b. Multiples objects */
 var bullets = []; //this is for tracking them AFTER they are fired
-var enemies = []; //this is for tracking them AFTER they are generated
+var enemies = [var rioter = {
+    speed: 2,
+    pos: { x: center.x + 20, y: center.y + 200},
+    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
+};
+]; //this is for tracking them AFTER they are generated
 var towers = [];
-for (var i = 0; i < 4; i++) {
+for (var i = 0; i < 10; i++) {
     enemies.push({
-        pos: { x: center.x - 10, y: center.y - 10 },
-        vel: { h: 2, v: 0 },
-        sprite: new Sprite("images/zombie.png", [0, 0], [5, 5],
-            15, [0, 1], 'horizontal', false, 0, [1, 1], 1)
+        pos: {x: 1 , y: (gameCanvas.height / 2)},
+        speed: 50,
+        dir: 0,
+        health: 5,
+        sprite: new Sprite("images/zombie.png", [0, 0], [220, 260],
+            3, [0, 0], 'horizontal', false, deg2rad(90), [0.2, 0.2], 1)
     });
 }
 
@@ -93,7 +93,7 @@ window.addEventListener('mousemove', function (e) {
 
 //score and lives status
 var score = 0;
-var lives = 3;
+var lives = 12;
 
 /* 5.  Getting ready to load the game
  *   This function prepares the game screen ready to start
@@ -125,9 +125,10 @@ function reset() {
 
     /*set game vars*/
     gameOver = false;
-    lives = 3;
+    lives = 12;
     score = 0;
-
+    
+    document.getElementById('lives').innerHTML = lives;
     /*Empty or reload object arrays*/
     //bullets = [];
 
@@ -180,9 +181,17 @@ function update(dt) {
         towers[i].dir = Math.atan2((rioter.pos.y - towers[i].pos.y), (rioter.pos.x - towers[i].pos.x));
         towers[i].sprite.facing = towers[i].dir + Math.PI / 2;
     };
+    
+    for (var i = 0; i < enemies.length; i++) {
+        enemies[i].pos.x += enemies[i].speed * dt * Math.cos(enemies[i].dir);
+        enemies[i].pos.y += enemies[i].speed * dt * Math.sin(enemies[i].dir);
+    }
 
-    rioter.pos = { x: mouseX, y: mouseY };
-
+    for (i = 0; i < enemies.length; i++) {
+        if(enemies[i].pos.x < 767 ){
+            loseLife();
+        }
+    }
     /*
     Step 1 - handle keyboard inputs in the gameLoop
      - mouse moves and clicks handled asynchronously

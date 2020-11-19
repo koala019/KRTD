@@ -19,5 +19,49 @@ section{
 }
 canvas{
 	background-color: lightgray;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
+canvas {
+	background-image: url("images/map.png");
+	background-repeat: no-repeat;
+	background-size: 1500px;
+}
+
+.game {
+	background-color: yellow;
+	display: grid;
+	grid-template-rows: auto 100px;
+	grid-template-columns: auto;
+	border: thin solid black;
+}
+
+.ui {
+	display: grid;
+	grid-template-columns: auto 250px 250px;
+	border: thin solid black;
+}
+
+.towers {
+	display: grid;
+	grid-template-rows: 2;
+	grid-template-columns: 3;
+}
+
+.towers > h1 {
+	grid-column: 3;
+	padding: 0;
+}
+
+.towerBtn {
+	padding: 0;
+	margin: auto;
+	border: thin solid black;
+	width: 80%;
+	height: 80%;
+	font-size: 20px;
+}

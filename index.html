@@ -26,11 +26,27 @@ This is a blank page to render a game using the jsLib and game.js files
 				<p id="bullet_angle"></p>
 			</section> -->
 
-      <div id="game">
-          <canvas id="game_canvas" width="1280" height="720"></canvas>
-      </div>
+      <div class="game" id="game">
+		  <canvas id="game_canvas" width="1280" height="720"></canvas>
+		  <div class="ui">
+			<button class="towerBtn" id="towerBtn">New Tower (50 Cheese)</button>
+			<h1 id="healthTxt">Health: 100</h1>
+			<h1 id="cheeseTxt">Cheese: 50</h1>
+		  </div>
+	  </div>
 		</div>
     <div id="sounds">
+			<audio id="bruh" preload="auto">
+				<source src="audio/bruh.mp3" type="audio/mp3">
+			</audio>
+
+			<audio id="shoot" preload="auto">
+				<source src="audio/shoot.mp3" type="audio/mp3">
+			</audio>
+
+			<audio id="die" preload="auto">
+				<source src="audio/die.mp3" type="audio/mp3">
+			</audio>
 			<!--
             <audio id="highway" preload="auto">
                 <source src="audio/highway.mp3" type="audio/mp3">

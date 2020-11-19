@@ -10,6 +10,12 @@ var gameSpeed = 5;
 var playerWalkSpeed = 1;
 var playerRunSpeed = 2;
 var center = { x: gameCanvas.width / 2, y: gameCanvas.height / 2 };
+var enemyStartPos = { x: -50, y: 300}
+var _newTower;
+var towerPrice = 50;
+var points = towerPrice + 0;
+var health = 100;
+var enemyHealth = 2;
 /*User global variables*/
 
 
@@ -19,62 +25,59 @@ resources.load([
     'images/field_map.gif',
     'images/zombie.png',
     'images/tower.png',
+    'images/bullet.png',
+    'images/tower2.png',
+    'images/rioter.png'
 ]);
 resources.onReady(init);
 
 /* 3. Game Objects */
 /* 3a. Singleton objects */
-var rioter = {
-    speed: 2,
-    pos: { x: center.x + 20, y: center.y + 200},
-    sprite: new Sprite("images/zombie.png", [0,0], [220,260], null, null, null, null, 100, [0.5, 0.5])
-};
 
-var player = {
-    speed: 2,
-    pos: center,
-    sprite: new Sprite('images/soldier.png', [0, 0], [64, 95],
-        /*These last are only required if the object has an animation*/
-        15, [0, 1, 2, 1], 'horizontal', false, 0, [1, 1], 1)
-};
+// var rioter = {
+//     speed: 2,
+//     pos: { x: center.x + 20, y: center.y + 200},
+//     sprite: new Sprite("images/rioter.png", [0,0], [100,100], 3, [0,2,1,2], "horizontal", false, 100, [0.5, 0.5])
+// };
 
-var background = {
+// var player = {
+//     speed: 2,
+//     pos: center,
+//     sprite: new Sprite('images/soldier.png', [0, 0], [64, 95],
+//         /*These last are only required if the object has an animation*/
+//         15, [0, 1, 2, 1], 'horizontal', false, 0, [1, 1], 1)
+// };
+
+var background = { // DOESNT ACTUALLY AFFECT IMAGE - BACKGROUND DEFINED IN CSS
     speed: 0,
     pos: { x: 0, y: 0 },
-    sprite: new Sprite('images/field_map.gif', [0, 0], [1024, 768])
+    sprite: new Sprite('images/map.png', [0, 0], [1024, 768])
 };
 
 /* 3b. Multiples objects */
 var bullets = []; //this is for tracking them AFTER they are fired
 var enemies = []; //this is for tracking them AFTER they are generated
 var towers = [];
-for (var i = 0; i < 10; i++) {
-    enemies.push({
-        pos: {x: 1 , y: (gameCanvas.height / 2)},
-        speed: 50,
-        dir: 0,
-        health: 5,
-        sprite: new Sprite("images/zombie.png", [0, 0], [220, 260],
-            3, [0, 0], 'horizontal', false, deg2rad(90), [0.2, 0.2], 1)
-    });
-}
+var enemiesPathPoints = [{x: 385, y: 334}, {x: 386, y: 625}, {x: 1100, y: 620}, {x: 1105, y: 180}, {x: 0, y: 0}];
 
-towers.push({
-    speed: 0,
-    pos: { x: center.x + 250, y: center.y },
-    sprite: new Sprite(
-        "images/tower.png",
-        [0,0],
-        [512,512],
-        null,
-        null,
-        null,
-        null,
-        null,
-        [0.5,0.5]
-    )
-    }
-)
+// towers.push({
+//     speed: 0,
+//     pos: { x: center.x + 250, y: center.y },
+//     sprite: new Sprite(
+//         "images/tower2.png",
+//         [0,0],
+//         [100,100],
+//         null,
+//         null,
+//         null,
+//         null,
+//         null,
+//         [1,1]
+//     ),
+//     shootTime: 0,
+//     shootDelay: 0.5
+//     }
+// );
 
 /* 4. Settings for game logic
  *      Place vars here for global tracking or setup
@@ -84,15 +87,90 @@ var gameOver = false;
 
 var mouseX;
 var mouseY;
-window.addEventListener('mousemove', function (e) {
-    mouseX = e.pageX;
-    mouseY = e.pageY;
-    console.log("BRUH");
-  })
 
 //score and lives status
 var score = 0;
-var lives = 12;
+var lives = 3;
+
+// FUNCTIONS
+
+window.addEventListener('mousemove', function (e) {
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+})
+
+document.getElementById("towerBtn").onclick = function() {
+    if (_newTower == null && points >= towerPrice) {
+        _newTower = ({
+            speed: 0,
+            pos: { x: mouseX, y: mouseY },
+            sprite: new Sprite(
+                "images/tower2.png",
+                [0,0],
+                [100,100],
+                null,
+                null,
+                null,
+                null,
+                null,
+                [1,1],
+                [1] // OPACITY
+            ),
+            shootTime: 0,
+            shootDelay: 0.5
+        })
+    }
+
+}
+
+window.addEventListener("mousedown", function() {
+    if (_newTower != null) {
+        placeTower();
+    }
+})
+
+function placeTower() {
+    var tower;
+    towers.push(tower = {
+        speed: _newTower.speed,
+        pos: { x: mouseX - 130, y: mouseY - 50},
+        sprite: _newTower.sprite,
+        type: "rifle",
+        shootTime: _newTower.shootTime,
+        shootDelay: _newTower.shootDelay
+    })
+    _newTower = null;
+    removePoints(towerPrice);
+}
+
+var waveCooldown = 5;
+var waveTimer = 0;
+var enemyAmount = 10;
+function wave() {
+    for (var i = 0; i < enemyAmount; i++) {
+        enemies.push({
+            pos: {x: (enemyStartPos.x)-(i*60), y: enemyStartPos.y},
+            speed: 200,
+            dir: 0,
+            health: 5,
+            sprite: new Sprite("images/rioter.png", [0,0], [100,100], 6, [0,2,1,2], "horizontal", false, deg2rad(90), [0.5, 0.5]),
+            health: enemyHealth + 0,
+            pathPoint: 0
+        });
+    }
+}
+
+function addPoints(_points) {
+    points += _points;
+    document.getElementById("cheeseTxt").innerHTML = "Cheese: " + points;
+}
+
+function removePoints(_points) {
+    points -= _points;
+    document.getElementById("cheeseTxt").innerHTML = "Cheese: " + points;
+}
+
+//
 
 /* 5.  Getting ready to load the game
  *   This function prepares the game screen ready to start
@@ -102,7 +180,7 @@ function init() {
 
     /*attach event listeners to html objects (outside the canvas)
       document.getElementById('reset').addEventListener('click', function(event){
-          init(); 
+          init();
           //add custom code here
       });
     */
@@ -124,10 +202,9 @@ function reset() {
 
     /*set game vars*/
     gameOver = false;
-    lives = 12;
+    lives = 3;
     score = 0;
-    
-    document.getElementById('lives').innerHTML = lives;
+
     /*Empty or reload object arrays*/
     //bullets = [];
 
@@ -170,27 +247,124 @@ function gameLoop() {
 };
 
 function update(dt) {
-    /*
-     * This is the main game LOGIC function
-     * -Here is where YOU do the work
-     * -This function is called once every "tick"
-     */
 
-    for (i = 0; i < towers.length; i++) {
-        towers[i].dir = Math.atan2((rioter.pos.y - towers[i].pos.y), (rioter.pos.x - towers[i].pos.x));
-        towers[i].sprite.facing = towers[i].dir + Math.PI / 2;
+    // TOWERS
+
+    for (var i = 0; i < towers.length; i++) {
+        if (enemies[0] != null) {
+            towers[i].dir = Math.atan2((enemies[0].pos.y - towers[i].pos.y), (enemies[0].pos.x - towers[i].pos.x));
+            towers[i].sprite.facing = towers[i].dir + Math.PI / 2;
+        }
     };
-    
+
+    if (_newTower != null) {
+        if (mouseX > 0 && mouseY > 0) {
+            _newTower.pos = { x: mouseX - 130, y: mouseY - 50 };
+        }
+    }
+
+    for (var i = 0; i < towers.length; i++) {
+        if (towers[i].shootTime > towers[i].shootDelay && enemies[0] != null) {
+            towers[i].shootTime = 0;
+
+            playSound("shoot");
+
+            if (towers[i].type == "rifle") {
+                bullets.push({
+                    speed: 5000,
+                    pos: { x: towers[i].pos.x + (towers[i].sprite.size.w / 4), y: towers[i].pos.y + (towers[i].sprite.size.h / 4) },
+                    sprite: new Sprite("images/bullet.png", [0,0], [86,207], null, null, null, null, towers[i].sprite.facing, [0.25,0.25], null),
+                    dir: towers[i].dir
+                });
+            }
+        } else {
+            towers[i].shootTime += dt;
+        }
+    }
+
+    for (var i = 0; i < bullets.length; i++) {
+
+        // var dist = Math.hypot(bullets[i].pos.x - mouseX, bullets[i].pos.y - mouseY);
+
+        // bullets[i].dir = Math.atan2((mouseY - bullets[i].pos.y), (mouseX - bullets[i].pos.x));
+        bullets[i].sprite.facing = bullets[i].dir + Math.PI / 2;
+
+        bullets[i].pos.x += bullets[i].speed * dt * Math.cos(bullets[i].dir);
+        bullets[i].pos.y += bullets[i].speed * dt * Math.sin(bullets[i].dir);
+
+        for (var j = 0; j < enemies.length; j++) {
+            if (objectCollides(bullets[i], enemies[j])) {
+                bullets.splice(i, 1);
+                i++;
+
+                if (enemies[j].health <= 1) {
+                    enemies.splice(j, 1);
+                    j++;
+                    addPoints(5);
+                    playSound("die");
+                } else {
+                    enemies[j].health--;
+                }
+            }
+        }
+    }
+
+    // ENEMIES
+
+        // WAVES
+
+    if (enemies.length < 1) {
+        if (waveTimer > waveCooldown) {
+            waveTimer = 0;
+            wave();
+            enemyAmount++;
+            enemyHealth += 0.5;
+        } else {
+            waveTimer += dt;
+        }
+    }
+
+        // MOVE FORWARD
+
     for (var i = 0; i < enemies.length; i++) {
         enemies[i].pos.x += enemies[i].speed * dt * Math.cos(enemies[i].dir);
         enemies[i].pos.y += enemies[i].speed * dt * Math.sin(enemies[i].dir);
+
+        enemies[i].sprite.update(dt);
+    }
+        // PATHFINDING
+
+    for (var i = 0; i < enemies.length; i++){
+        var xDiff = enemies[i].pos.x - enemiesPathPoints[enemies[i].pathPoint].x;
+        var yDiff = enemies[i].pos.y - enemiesPathPoints[enemies[i].pathPoint].y;
+        var dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+        if(dist <= 50){
+            enemies[i].pathPoint++;
+            // enemies[i].dir = (Math.atan2((enemiesPathPoints[enemies[i].pathPoint].y - pos.y, enemiesPathPoints[enemies[i].pathPoint].x - pos.x)));
+            switch (enemies[i].pathPoint) {
+                case 1: enemies[i].dir = deg2rad(90);
+                        break;
+                case 2: enemies[i].dir = deg2rad(0);
+                        break;
+                case 3: enemies[i].dir = deg2rad(-90);
+                        break;
+                case 4: enemies[i].dir = deg2rad(0);
+                        break;
+        }
+            enemies[i].sprite.facing = enemies[i].dir + Math.PI / 2;
     }
 
-    for (i = 0; i < enemies.length; i++) {
-        if(enemies[i].pos.x < 767 ){
-            loseLife();
+    if (enemies[i].pos.x > 1350) {
+        enemies.splice(i, 1);
+        health -= 5;
+        document.getElementById("healthTxt").innerHTML = "Health: " + health;
+
+        if (health <= 0) {
+            location.reload();
         }
     }
+}
+
     /*
     Step 1 - handle keyboard inputs in the gameLoop
      - mouse moves and clicks handled asynchronously
@@ -210,7 +384,6 @@ function update(dt) {
         array_name[i].sprite.update(dt);
       }
     */
-    player.sprite.update(dt);
 
     /*
     Step 3 - Calculate all new locations
@@ -218,15 +391,15 @@ function update(dt) {
     */
 
     //if off screen top, come back in bottom - like pacman
-    if (player.pos.y + getScaledSize(player).h < 0) {
-        player.pos.y = gameCanvas.height;
-    }
-    //if get to left or right, cant go off
-    if (player.pos.x < 0) {
-        player.pos.x = 0;
-    } else if (player.pos.x + getScaledSize(player).w > gameCanvas.width) {
-        player.pos.x = gameCanvas.width - getScaledSize(player).w;
-    }
+    // if (player.pos.y + getScaledSize(player).h < 0) {
+    //     player.pos.y = gameCanvas.height;
+    // }
+    // //if get to left or right, cant go off
+    // if (player.pos.x < 0) {
+    //     player.pos.x = 0;
+    // } else if (player.pos.x + getScaledSize(player).w > gameCanvas.width) {
+    //     player.pos.x = gameCanvas.width - getScaledSize(player).w;
+    // }
 
 
     /*
@@ -259,10 +432,22 @@ function render() {
       Multiples (ie arrays): renderEntities(array_name);
     */
     // renderEntity(player);
-    renderEntity(rioter);
-    for (i = 0; i < towers.length; i++) {
+    if (_newTower != null) {
+        renderEntity(_newTower);
+    }
+
+    for (var i = 0; i < bullets.length; i++) {
+        renderEntity(bullets[i]);
+    }
+
+    for (var i = 0; i < towers.length; i++) {
         renderEntity(towers[i]);
     }
+
+    for (var i = 0; i < enemies.length; i++) {
+        renderEntity(enemies[i]);
+    }
+
     // renderEntities(explosions);
 
     /*
@@ -335,32 +520,32 @@ function handleInput(dt) {
         //   console.log('down');
         // }
 
-        player.pos.y += player.speed;
-        player.sprite.facing = Math.PI;
+        // player.pos.y += player.speed;
+        // player.sprite.facing = Math.PI;
         /*end custom logic*/
 
         curKey = 'DOWN';
     } else
     if (input.isDown('UP')) {
         /*custom logic here*/
-        player.pos.y -= player.speed;
-        player.sprite.facing = 0;
+        // player.pos.y -= player.speed;
+        // player.sprite.facing = 0;
         /*end custom logic*/
 
         curKey = 'UP';
     } else
     if (input.isDown('LEFT')) {
-        /*custom logic here*/
-        player.pos.x -= player.speed;
-        player.sprite.facing = deg2rad(270);
+        // /*custom logic here*/
+        // player.pos.x -= player.speed;
+        // player.sprite.facing = deg2rad(270);
         /*end custom logic*/
 
         curKey = 'LEFT';
     } else
     if (input.isDown('RIGHT')) {
         /*custom logic here*/
-        player.pos.x += player.speed;
-        player.sprite.facing = deg2rad(90);
+        // player.pos.x += player.speed;
+        // player.sprite.facing = deg2rad(90);
         /*end custom logic*/
 
         curKey = 'RIGHT';
@@ -371,17 +556,17 @@ function handleInput(dt) {
     if (moving) {
         if (input.isDown('R')) {
             /*custom logic here*/
-            player.sprite.speed = 15;
-            player.speed = playerRunSpeed;
+            // player.sprite.speed = 15;
+            // player.speed = playerRunSpeed;
             /*end custom logic*/
 
             curKey = 'RIGHT';
         } else {
-            player.sprite.speed = 10;
-            player.speed = playerWalkSpeed;
+            // player.sprite.speed = 10;
+            // player.speed = playerWalkSpeed;
         }
     } else {
-        player.sprite.speed = 0;
+        // player.sprite.speed = 0;
     }
 
 }
@@ -419,7 +604,7 @@ function loseLife() {
         //stopSound("highway");
 
     } else {
-        playerReset();
+        // playerReset();
     }
 
 }
